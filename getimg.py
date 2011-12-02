@@ -43,35 +43,46 @@ try:
 		yoffR = yoff
 		xpage = 0
 		ypage = 0
+		dX = ""
+		dY = ""
 		if xoff < 0:
 			xpage = -xoff
 			origPixX += xoff
 			xoff = 0
+			dX = "East"
 		if yoff < 0:
 			ypage = -yoff;
 			origPixY += yoff
 			yoff = 0
+			dY = "South"
 		if xoff > mp.xPix:
 			xoff = mp.xPix
 		if yoff > mp.yPix:
 			yoff = mp.yPix
-		if xpage > 0 or ypage > 0:
-			page = ["-gravity","SouthEast","-extent","%dx%d"%(origPixX+xpage,origPixY+ypage)]
+		if xoff > mp.xPix - 256:
+			dX = "West"
+		if yoff > mp.yPix - 256:
+			dY = "North"
+		if dX <> "" or dY > "":
+  			page = ["-gravity","%s%s" % (dY,dX),"-extent","%dx%d"%(origPixX+xpage,origPixY+ypage)]
+#			page = ["-extent","%dx%d"%(xpage,ypage)]
 		else:
 			page = []
 		pic = []
 #		txt = "%g/%g\\n%d/%d\\n%s\\noff:%d/%d\\nscl:%.3g/%.3g\\n%d/%d" % (deg[0],deg[1],int(ch[0]),int(ch[1]),fn,xoffR,yoffR,scaleX,scaleY,int(chNext[0]),int(chNext[1]))
-#		txt+="\\n" + ",".join(["%d" % m.coverCH(ch[0],chNext[0],ch[1],chNext[1]) for m in mps])
-#		raise BaseException(" ".join(["convert",fn,"-crop","%dx%d+%d+%d" % (origPixX,origPixY,xoff,yoff)]+page+[
-#				"-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest","-pointsize", "30","-annotate","+%d+%d" % (xoff+10,yoff+10), txt,
-#				"-scale","%g%%x%g%%" % (scaleX,scaleY),				
-#				"-size","256x256",
-#			"-quality","75","jpeg:-"]))
-		pr = subprocess.Popen(["convert",fn,"-crop","%dx%d+%d+%d" % (origPixX,origPixY,xoff,yoff)]+page+[
-#				"-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest","-pointsize", "30","-annotate","+%d+%d" % (xoff+10,yoff+10), txt,
+		txt="\\n".join(["%d:%g/%g" % (m.coverCH(ch[0],chNext[0],ch[1],chNext[1]),m.xStart,m.yStart) for m in mps])
+		txt+="\\n" + "\\n".join(qs)
+		txt+="\\n%s%s" % (dY,dX)
+		txt+="\\n%d/%d" % (xoff,yoff)
+		call = ["convert",fn,
+				"-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest","-pointsize", "30","-annotate","+%d+%d" % (xoff+10,yoff+10), txt,
+				"-crop","%dx%d+%d+%d" % (origPixX,origPixY,xoff,yoff)]+page+[
 				"-scale","%g%%x%g%%" % (scaleX,scaleY),				
 				"-size","256x256",
-			"-quality","75","jpeg:-"],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+			"-quality","75","jpeg:-"]
+		#raise BaseException("origPixX=%d origPixY=%d xoff=%d yoff=%d with=%d\nxpage=%d ypage=%d\n%s\n%s\n%s" % (origPixX,origPixY,xoff,yoff, mp.yPix,xpage,ypage,txt,str(page)," ".join(call)))	
+	
+		pr = subprocess.Popen(call,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	else:
 		fn = "None"
 		pr = subprocess.Popen(["convert","-size","256x256","xc:white","-fill","blue","-font","Helvetica-Bold","-gravity",
