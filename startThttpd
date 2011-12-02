@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ScriptPath=$0
+if [ "${ScriptPath:0:2}" == "./" ]; then
+	ScriptPath="$PWD/${ScriptPath:2}"
+elif [ "${ScriptPath:0:1}" != "/" ]; then
+	ScriptPath="$PWD/$ScriptPath"
+fi 
+ScriptDir=$(dirname $ScriptPath)
+$ScriptDir/thttpd -p 8080 -d $ScriptDir -c \*.py -D -l /dev/stdout
