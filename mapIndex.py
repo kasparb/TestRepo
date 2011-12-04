@@ -76,12 +76,6 @@ class MapIndex:
 	def calcWGS(self):
 		for i in self.index:
 			i.calcWGS()
-#	def lookupCH(self,x,y,xEnd,yEnd):
-#		al = []
-#		for i in self.index:
-#			if i.isInCH(x,y) and i.isInCH(xEnd,yEnd):
-#				return i
-#		return None
 	def lookupWGS(self,x,y,xEnd,yEnd):
 		al = []
 		for i in self.index:
@@ -89,6 +83,18 @@ class MapIndex:
 			in2 = i.isInWGS(x,yEnd) 
 			in3 = i.isInWGS(xEnd,y) 
 			in4 = i.isInWGS(xEnd,yEnd)
+			if in1 and in2 and in3 and in4:
+				return [i]
+			elif in1 or in2 or in3 or in4:
+				al.append(i)
+		return al
+	def lookupCH(self,x,y,xEnd,yEnd):
+		al = []
+		for i in self.index:
+			in1 = i.isInCH(x,y) 
+			in2 = i.isInCH(x,yEnd) 
+			in3 = i.isInCH(xEnd,y) 
+			in4 = i.isInCH(xEnd,yEnd)
 			if in1 and in2 and in3 and in4:
 				return [i]
 			elif in1 or in2 or in3 or in4:
@@ -133,14 +139,14 @@ if __name__ == '__main__':
 		for i in idxs:
 			print "%s:\n%s" % (idxs[i].dir, repr(idxs[i]))
 		print("bern:")
-		print(idxs['pk25'].lookupCH(600000,200000)) #bern
-		print("zh:")
-		print(idxs['pk25'].lookupWGS(47.366667,8.55)) #zh
+		print(idxs['pk25'].lookupCH(600000,200000,600000,200000)) #bern
+ #		print("zh:")
+#		print(idxs['pk25'].lookupWGS(47.366667,8.55,47.366667,8.55)) #zh
 	else:
 		idxs = {}
 		for i in sys.argv[1:]:
 			idx = buildIndex(i)
-			idx.calcWGS()
+#			idx.calcWGS()
 			idxs[os.path.basename(i)] = idx
 	
 		o = open("map-index","w")
