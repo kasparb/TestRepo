@@ -25,6 +25,11 @@ try:
 		st = "pk500"
 	degNext = num2deg(x+1,y+1,z)
 	chNext = WGStoCH(degNext[0],degNext[1])
+	degNextX = num2deg(x+1,y,z)
+	chNextX = WGStoCH(degNextX[0],degNextX[1])
+	degNextY = num2deg(x,y+1,z)
+	chNextY = WGStoCH(degNextY[0],degNextY[1])
+
 	mps = idxs[st].lookupWGS(deg[0],deg[1],degNext[0],degNext[1])
 	if len(mps) > 0:
 		def getView(mp):
@@ -37,8 +42,9 @@ try:
 			return (origPixX,origPixY,xoff,yoff)
 #		txt="\\n".join(["%d:%g/%g" % (m.coverCH(ch[0],chNext[0],ch[1],chNext[1]),m.xStart,m.yStart) for m in mps])
 #		txt+="\\n" + "\\n".join(qs)
-#		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
-#			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
+		txt = "%g/%g" % (ch[0]-chNextY[0],ch[1]-chNextX[1])
+		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
+			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
 		if len(mps) == 1:
 			(origPixX,origPixY,xoff,yoff) = getView(mps[0])
 			mapCall = [
@@ -55,7 +61,7 @@ try:
 			mapCall += ["-flatten"];
 
 	
-		call = ["convert"]+mapCall+[ #txtCall+
+		call = ["convert"]+mapCall+txtCall+[
 			"-resize","256x256!",
 			"-quality","75","jpeg:-"]
 
@@ -65,8 +71,7 @@ try:
 	else:
 		fn = "None"
 		pr = subprocess.Popen(["convert","-size","256x256","xc:white","-fill","blue","-font","Helvetica-Bold","-gravity",
-				"NorthWest","-pointsize", "30","-annotate","+10+10","not in\\n"+"\\n".join(qs) + 
-			"\\n%g/%g\\n%d\\n%d\\n%s" % (deg[0],deg[1],int(ch[0]),int(ch[1]),fn),
+				"NorthWest","-pointsize", "30","-annotate","+10+10","not mapped",
 		"-quality","75","jpeg:-"],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	err = pr.stderr.read(8192)
 except:
