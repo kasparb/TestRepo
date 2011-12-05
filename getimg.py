@@ -66,7 +66,7 @@ try:
 #		txt="\\n".join(["%d:%g/%g" % (m.coverCH(ch[0],chNext[0],ch[1],chNext[1]),m.xStart,m.yStart) for m in mps])
 #		txt+="\\n" + "\\n".join(qs)
 
-		txt = "%g/%g\\n%g/%g\\n%g/%g" % (xShearDeg,yShearDeg,xShearOff,yShearOff,xShearWidth,yShearWidth)
+#		txt = "%g/%g\\n%g/%g\\n%g/%g" % (xShearDeg,yShearDeg,xShearOff,yShearOff,xShearWidth,yShearWidth)
 #		txt += "\\nne:%d/%d\\nsw:%d/%d" % (int(ch[0]),int(ch[1]),int(chNext[0]),int(chNext[1]))
 		if len(mps) == 1:
 			(origPixX,origPixY,xoff,yoff) = getView(mps[0])
@@ -90,12 +90,12 @@ try:
 			   "-flatten"
 			   ]
 
-		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
-			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
+#		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
+#			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
 	
-		call = ["convert"]+mapCall+txtCall+[
+		call = ["convert"]+mapCall+[ #txtCall+[
 			"-resize","256x256!",
-			"-quality","75","jpeg:-"]
+			"-quality","40","jpeg:-"]
 
 
 #		raise BaseException("origPixX=%d origPixY=%d xoff=%d yoff=%d\n%s\n%s" % (origPixX,origPixY,xoff,yoff,txt," ".join(call)))	
@@ -103,8 +103,8 @@ try:
 	else:
 		fn = "None"
 		pr = subprocess.Popen(["convert","-size","256x256","xc:white","-fill","blue","-font","Helvetica-Bold","-gravity",
-				"NorthWest","-pointsize", "30","-annotate","+0+0","not mapped",
-		"-quality","75","jpeg:-"],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+				"NorthWest","-pointsize", "30","-annotate","+100+100","X",
+		"-quality","40","jpeg:-"],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	err = pr.stderr.read(8192)
 except:
 	print("Content-Type: text/plain\n")
