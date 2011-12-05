@@ -37,6 +37,8 @@ try:
 		yShearDeg = math.degrees(math.atan2(chNextY[1]-ch[1],chNextY[0]-ch[0]))
 		xShearOff = (ch[0]-chNextX[0]) / mps[0].xRes;
 		yShearOff = (chNextY[1]-ch[1]) / mps[0].yRes;
+		xShearOff = math.floor(xShearOff+0.5)
+		yShearOff = math.floor(yShearOff+0.5)
 		if xShearOff > 0:
 			xShearWidth = xShearOff
 			xShearOff = 0
@@ -50,14 +52,14 @@ try:
 		else:
 			yShearWidth = -yShearOff
 			yShearOff = 0
-		origPixXall = (chNext[0] - ch[0]) / mps[0].xRes 
-		origPixYall = (chNext[1] - ch[1]) / mps[0].yRes
+		origPixXall = (chNextY[0] - ch[0]) / mps[0].xRes 
+		origPixYall = (chNextX[1] - ch[1]) / mps[0].yRes #- yShearWidth
 
 		def getView(mp):
-			origPixX =  (chNext[0] - ch[0]) / mp.xRes # + xShearWidth
-			origPixY =  (chNext[1] - ch[1]) / mp.yRes # + yShearWidth
-			origPixX = math.floor(origPixX+0.5)
-			origPixY = math.floor(origPixY+0.5)
+			origPixX =  (chNext[0] - ch[0]) / mp.xRes  + xShearWidth*2
+			origPixY =  (chNext[1] - ch[1]) / mp.yRes  + yShearWidth*2
+			origPixX = math.floor(origPixX)
+			origPixY = math.floor(origPixY)
 			xoff = int((ch[0] - mp.xStart) / mp.xRes) #- xShearOff
 			yoff = int(mp.yPix + (ch[1] - mp.yStart) / mp.yRes) #- yShearOff
 			return (origPixX,origPixY,xoff,yoff)
@@ -65,8 +67,7 @@ try:
 #		txt+="\\n" + "\\n".join(qs)
 
 		txt = "%g/%g\\n%g/%g\\n%g/%g" % (xShearDeg,yShearDeg,xShearOff,yShearOff,xShearWidth,yShearWidth)
-		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
-			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
+#		txt += "\\nne:%d/%d\\nsw:%d/%d" % (int(ch[0]),int(ch[1]),int(chNext[0]),int(chNext[1]))
 		if len(mps) == 1:
 			(origPixX,origPixY,xoff,yoff) = getView(mps[0])
 			mapCall = [
@@ -74,6 +75,7 @@ try:
 					"-page","%dx%d%+d%+d"%(origPixX,origPixY,-xoff,-yoff), mps[0].fileName,
 					"-flatten"
 				];
+#			txt += "\\n%dx%d%+d%+d"%(origPixX,origPixY,-xoff,-yoff)
 		else:
 			(origPixX,origPixY,xoff,yoff) = getView(mps[0])
 			mapCall = ["-page","%dx%d%+d%+d"%(origPixX,origPixY,-xoff,-yoff), mps[0].fileName]
@@ -82,10 +84,14 @@ try:
 				mapCall += ["-page","%+d%+d"%(-xoff,-yoff), mp.fileName]
 			mapCall += ["-flatten"];
 
-#		mapCall += ["-shear", "%gx%g" % (xShearDeg,yShearDeg),
-#			   "-crop", "%dx%d+%d+%d!"%(origPixXall,origPixYall,xShearWidth,yShearWidth),
-#			   "-flatten"
-#			   ]
+
+		mapCall += ["-shear", "%gx%g" % (xShearDeg,yShearDeg),
+			   "-crop", "%dx%d+%d+%d!"%(origPixXall,origPixYall,xShearWidth,yShearWidth),
+			   "-flatten"
+			   ]
+
+		txtCall = ["-undercolor","lightblue","-fill","blue","-font","AvantGarde-Book","-gravity", "NorthWest",
+			"-pointsize", "30","-annotate","+%d+%d" % (10,10), txt];
 	
 		call = ["convert"]+mapCall+txtCall+[
 			"-resize","256x256!",
